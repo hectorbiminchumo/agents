@@ -14,14 +14,6 @@ class EngineeringTeam():
     tasks: list[Task]
 
     @agent
-    def engineering_lead(self) -> Agent:
-        return Agent(
-            config=self.agents_config['engineering_lead'],
-            verbose=True,
-            mcps=["https://mcp.context7.com/mcp"]
-        )
-
-    @agent
     def backend_engineer(self) -> Agent:
         return Agent(
             config=self.agents_config['backend_engineer'],
@@ -76,11 +68,18 @@ class EngineeringTeam():
         # To learn how to add knowledge sources to your crew, check out the documentation:
         # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 
+        manager = Agent(
+            config=self.agents_config['engineering_lead'],
+            verbose=True,
+            allow_delegation=True,
+            mcps=["https://mcp.context7.com/mcp"]
+        )
+
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
+            agents=self.agents, # Automatically created by the @agent decorator (backend, frontend, test engineers)
             tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
+            process=Process.hierarchical,
+            manager_agent=manager,
             verbose=True,
             tracing=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
