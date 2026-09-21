@@ -590,10 +590,14 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "crewai", extra = ["tools"] },
+    { name = "gradio" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "crewai", extras = ["tools"], specifier = "==1.14.4" }]
+requires-dist = [
+    { name = "crewai", extras = ["tools"], specifier = "==1.14.4" },
+    { name = "gradio", specifier = ">=6.0" },
+]
 
 [[package]]
 name = "et-xmlfile"
