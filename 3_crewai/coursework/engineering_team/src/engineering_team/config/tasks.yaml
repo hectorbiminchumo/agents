@@ -55,3 +55,24 @@ test_task:
     - code_task
     - design_task
   output_file: sandbox/test_summary.md
+
+quality_review_task:
+  description: >
+    Review the complete deliverable in the sandbox — the backend code, the unit tests, and the gradio frontend (app.py) —
+    against the design and the original requirements: {requirements}.
+    Use your sandbox tools to inspect the files yourself and re-run the unit tests and the frontend validation script to confirm
+    the reported results are accurate; do not just trust the other engineers' summaries.
+    If you find any defects, missing requirements, or deviations from the design, delegate a specific and actionable fix to the
+    engineer responsible for that part of the system, then re-check their work once it's done.
+    Repeat this review-and-delegate cycle until every issue is resolved, the unit tests pass, and the gradio app validates cleanly.
+    Only approve once you are fully satisfied the deliverable meets the requirements.
+  expected_output: >
+    A final QA report in markdown listing: what was reviewed, any issues found and how each was resolved (or why it wasn't),
+    and a clear final verdict (approved / not approved and why).
+  agent: qa_engineer
+  context:
+    - design_task
+    - code_task
+    - frontend_task
+    - test_task
+  output_file: sandbox/qa_report.md

@@ -38,6 +38,14 @@ class EngineeringTeam():
             tools=sandbox_tools
         )
 
+    @agent
+    def qa_engineer(self) -> Agent:
+        return Agent(
+            config=self.agents_config['qa_engineer'],
+            verbose=True,
+            tools=sandbox_tools
+        )
+
     @task
     def design_task(self) -> Task:
         return Task(
@@ -60,6 +68,12 @@ class EngineeringTeam():
     def test_task(self) -> Task:
         return Task(
             config=self.tasks_config['test_task'],
+        )
+
+    @task
+    def quality_review_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['quality_review_task'],
         )
 
     @crew
