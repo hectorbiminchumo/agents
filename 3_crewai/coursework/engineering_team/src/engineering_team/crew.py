@@ -76,6 +76,12 @@ class EngineeringTeam():
             config=self.tasks_config['quality_review_task'],
         )
 
+    @task
+    def apply_feedback_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['apply_feedback_task'],
+        )
+
     @crew
     def crew(self) -> Crew:
         """Creates the EngineeringTeam crew"""

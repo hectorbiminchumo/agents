@@ -8,14 +8,32 @@ SANDBOX_DIR = Path(__file__).parents[3] / "sandbox"
 SANDBOX_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _init_uv_project() -> None:
+    subprocess.run(["uv", "init", "--bare", "--python", "3.13"], cwd=SANDBOX_DIR, check=True)
+    subprocess.run(["uv", "add", "gradio"], cwd=SANDBOX_DIR, check=True)
+
+
 def reset_sandbox() -> None:
-    """Wipe the sandbox and re-initialize it as a fresh uv project with gradio."""
+    """Wipe the sandbox and re-initialize it as a fresh uv project with gradio.
+
+    Discards all prior work and feedback history. Only call this for an
+    intentional fresh start — normal runs should use ensure_sandbox() instead.
+    """
     if SANDBOX_DIR.exists():
         shutil.rmtree(SANDBOX_DIR)
     SANDBOX_DIR.mkdir(parents=True)
+    _init_uv_project()
 
-    subprocess.run(["uv", "init", "--bare", "--python", "3.13"], cwd=SANDBOX_DIR, check=True)
-    subprocess.run(["uv", "add", "gradio"], cwd=SANDBOX_DIR, check=True)
+
+def ensure_sandbox() -> None:
+    """Initialize the sandbox as a uv project with gradio if it isn't already set up.
+
+    Unlike reset_sandbox(), this never deletes existing files — safe to call on
+    every run so the team's prior work persists across iterations.
+    """
+    if (SANDBOX_DIR / "pyproject.toml").exists():
+        return
+    _init_uv_project()
 
 @tool("List Sandbox Files")
 def list_sandbox_files() -> str:

@@ -76,3 +76,25 @@ quality_review_task:
     - frontend_task
     - test_task
   output_file: sandbox/qa_report.md
+
+apply_feedback_task:
+  description: >
+    A human reviewer may have left feedback on the current deliverable. Here is the latest feedback log:
+    {feedback}
+    If the log above says there is no feedback yet, simply confirm the current deliverable already meets the
+    requirements and make no changes.
+    Otherwise, use your sandbox tools to inspect the existing files (do not start over from scratch) and make the
+    specific changes the feedback is asking for, delegating parts of the work to backend_engineer, frontend_engineer,
+    or test_engineer as needed depending on what the feedback concerns.
+    After making changes, re-run the unit tests and the frontend validation script to confirm nothing was broken;
+    fix anything that breaks before finishing.
+  expected_output: >
+    A short changelog describing what was changed in response to the feedback (or confirmation that no changes
+    were needed), and confirmation that the unit tests still pass and the gradio app still validates.
+  context:
+    - design_task
+    - code_task
+    - frontend_task
+    - test_task
+    - quality_review_task
+  output_file: sandbox/feedback_response.md

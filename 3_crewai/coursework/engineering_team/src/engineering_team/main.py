@@ -3,10 +3,11 @@ import sys
 import warnings
 
 from datetime import datetime
+from pathlib import Path
 
 import engineering_team.patch # noqa: F401 — applies CrewAI MCP monkey-patch on import
 
-from .tools.sandbox_tools import reset_sandbox
+from .tools.sandbox_tools import reset_sandbox, ensure_sandbox
 
 from engineering_team.crew import EngineeringTeam
 
@@ -30,19 +31,66 @@ The system should prevent the user from withdrawing funds that would leave them 
  The system has access to a function get_share_price(symbol) which returns the current price of a share, and includes a test implementation that returns fixed prices for AAPL, TSLA, GOOGL.
 """
 
+NO_FEEDBACK_YET = "No feedback yet — this is the first build, just implement the requirements."
+
+FEEDBACK_LOG = Path(__file__).resolve().parents[2] / "sandbox" / "feedback_log.md"
+
+
 def run():
     """
-    Run the crew.
+    Run the crew. Reuses the existing sandbox if one is already there, so
+    re-running does not throw away prior work — only `reset` does that.
     """
     inputs = {
-        'requirements': requirements
+        'requirements': requirements,
+        'feedback': FEEDBACK_LOG.read_text() if FEEDBACK_LOG.exists() else NO_FEEDBACK_YET,
     }
 
     try:
-        reset_sandbox()
+        ensure_sandbox()
         EngineeringTeam().crew().kickoff(inputs=inputs)
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
+
+
+def reset():
+    """
+    Wipe the sandbox and the feedback history for a completely fresh start.
+    """
+    reset_sandbox()
+    if FEEDBACK_LOG.exists():
+        FEEDBACK_LOG.unlink()
+    print("Sandbox and feedback history reset. Run `crewai run` to build from scratch.")
+
+
+def feedback():
+    """
+    Give the team feedback on the current deliverable without wiping the sandbox.
+    Usage: uv run feedback "your comments here" (or run with no argument to be prompted).
+    Feedback accumulates in sandbox/feedback_log.md across rounds, like an ongoing review thread.
+    """
+    text = sys.argv[1] if len(sys.argv) > 1 else input("Enter your feedback: ")
+    text = text.strip()
+    if not text:
+        print("No feedback provided.")
+        return
+
+    ensure_sandbox()
+    FEEDBACK_LOG.parent.mkdir(parents=True, exist_ok=True)
+    existing = FEEDBACK_LOG.read_text() if FEEDBACK_LOG.exists() else ""
+    timestamp = datetime.now().isoformat(timespec="seconds")
+    entry = f"## {timestamp}\n{text}\n"
+    FEEDBACK_LOG.write_text(existing + ("\n" if existing else "") + entry)
+
+    inputs = {
+        'requirements': requirements,
+        'feedback': FEEDBACK_LOG.read_text(),
+    }
+
+    try:
+        EngineeringTeam().crew().kickoff(inputs=inputs)
+    except Exception as e:
+        raise Exception(f"An error occurred while applying feedback: {e}")
 
 
 def train():
