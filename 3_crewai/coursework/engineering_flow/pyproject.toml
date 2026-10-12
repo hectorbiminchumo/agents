@@ -19,3 +19,8 @@ build-backend = "hatchling.build"
 
 [tool.crewai]
 type = "flow"
+
+[tool.uv.workspace]
+members = [
+    "runs/trading_account/sandbox",
+]
