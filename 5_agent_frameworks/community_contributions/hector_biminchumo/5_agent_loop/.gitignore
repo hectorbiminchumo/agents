@@ -1,0 +1,4 @@
+node_modules/
+.mastra/
+.playwright-mcp/
+__pycache__/
